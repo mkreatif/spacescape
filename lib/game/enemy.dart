@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:spacescape/game/know_game_size.dart';
@@ -5,7 +7,9 @@ import 'package:spacescape/game/know_game_size.dart';
 class Enemy extends SpriteComponent with KnowGameSize {
   double _speed = 250;
   Enemy({Sprite? sprite, Vector2? position, Vector2? size})
-      : super(sprite: sprite, position: position, size: size);
+      : super(sprite: sprite, position: position, size: size) {
+    angle = pi;
+  }
 
   @override
   void update(double dt) {
