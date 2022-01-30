@@ -3,6 +3,7 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
+import 'package:spacescape/game/know_game_size.dart';
 import 'package:spacescape/game/player.dart';
 
 class SpacescapeGame extends FlameGame with PanDetector {
@@ -84,5 +85,13 @@ class SpacescapeGame extends FlameGame with PanDetector {
     _pointerCurrentPosition = null;
 
     player.setMoveDirection(Vector2.zero());
+  }
+
+  @override
+  void prepare(Component parent) {
+    super.prepare(parent);
+    if (parent is KnowGameSize) {
+      parent.onGameResize(size);
+    }
   }
 }
