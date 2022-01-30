@@ -3,6 +3,7 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
+import 'package:spacescape/game/enemy.dart';
 import 'package:spacescape/game/know_game_size.dart';
 import 'package:spacescape/game/player.dart';
 
@@ -25,6 +26,14 @@ class SpacescapeGame extends FlameGame with PanDetector {
 
     player.anchor = Anchor.center;
     add(player);
+
+    var enemy = Enemy(
+        sprite: spriteSheet.getSpriteById(6),
+        size: Vector2(64, 64),
+        position: canvasSize / 2 + Vector2(0, -100));
+
+    enemy.anchor = Anchor.center;
+    add(enemy);
   }
 
   @override
