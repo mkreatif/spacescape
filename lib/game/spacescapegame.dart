@@ -3,31 +3,32 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
-import 'package:spacescape/game/enemy.dart';
+import 'package:spacescape/game/bullet.dart';
 import 'package:spacescape/game/enemy_manager.dart';
 import 'package:spacescape/game/know_game_size.dart';
 import 'package:spacescape/game/player.dart';
 
-class SpacescapeGame extends FlameGame with PanDetector {
+class SpacescapeGame extends FlameGame with PanDetector, TapDetector {
   late Player player;
   Offset? _pointerStartPosition;
   Offset? _pointerCurrentPosition;
   final double _joysticRadius = 60, _deadZoneRadius = 10;
+  late SpriteSheet _spriteSheet;
 
   @override
   Future<void>? onLoad() async {
     super.onLoad();
     await images.load('tilesheet.png');
-    final spriteSheet = SpriteSheet.fromColumnsAndRows(
+    _spriteSheet = SpriteSheet.fromColumnsAndRows(
         image: images.fromCache('tilesheet.png'), columns: 8, rows: 6);
     player = Player(
-        sprite: spriteSheet.getSpriteById(6),
+        sprite: _spriteSheet.getSpriteById(6),
         size: Vector2(64, 64),
         position: canvasSize / 2);
 
     player.anchor = Anchor.center;
     add(player);
-    EnemyManager enemyManager = EnemyManager(spriteSheet: spriteSheet);
+    EnemyManager enemyManager = EnemyManager(spriteSheet: _spriteSheet);
     add(enemyManager);
   }
 
@@ -56,15 +57,18 @@ class SpacescapeGame extends FlameGame with PanDetector {
   }
 
   @override
+  void update(double dt) {
+    super.update(dt);
+  }
+
+  @override
   void onPanStart(DragStartInfo info) {
-    debugPrint('on pan start');
     _pointerStartPosition = info.eventPosition.global.toOffset();
     _pointerCurrentPosition = info.eventPosition.global.toOffset();
   }
 
   @override
   void onPanUpdate(DragUpdateInfo info) {
-    debugPrint('on pan update');
     _pointerCurrentPosition = info.eventPosition.global.toOffset();
     final delta = _pointerCurrentPosition! - _pointerStartPosition!;
     if (delta.distance > _deadZoneRadius) {
@@ -76,7 +80,6 @@ class SpacescapeGame extends FlameGame with PanDetector {
 
   @override
   void onPanEnd(DragEndInfo info) {
-    debugPrint('on pan end');
     _pointerStartPosition = null;
     _pointerCurrentPosition = null;
     player.setMoveDirection(Vector2.zero());
@@ -84,7 +87,6 @@ class SpacescapeGame extends FlameGame with PanDetector {
 
   @override
   void onPanCancel() {
-    debugPrint('on pan cancel');
     _pointerStartPosition = null;
     _pointerCurrentPosition = null;
 
@@ -97,5 +99,18 @@ class SpacescapeGame extends FlameGame with PanDetector {
     if (parent is KnowGameSize) {
       parent.onGameResize(size);
     }
+  }
+
+  @override
+  void onTapDown(TapDownInfo info) {
+    super.onTapDown(info);
+
+    Bullet bullet = Bullet(
+        sprite: _spriteSheet.getSpriteById(28),
+        size: Vector2(64, 64),
+        position: player.position);
+
+    bullet.anchor = Anchor.center;
+    add(bullet);
   }
 }

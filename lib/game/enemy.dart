@@ -19,10 +19,4 @@ class Enemy extends SpriteComponent with KnowGameSize {
       remove(this);
     }
   }
-
-  @override
-  void onRemove() {
-    super.onRemove();
-    debugPrint("REMOVING ${toString()}");
-  }
 }
