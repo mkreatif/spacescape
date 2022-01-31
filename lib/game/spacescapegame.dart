@@ -4,6 +4,7 @@ import 'package:flame/input.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:spacescape/game/bullet.dart';
+import 'package:spacescape/game/enemy.dart';
 import 'package:spacescape/game/enemy_manager.dart';
 import 'package:spacescape/game/know_game_size.dart';
 import 'package:spacescape/game/player.dart';
@@ -14,6 +15,7 @@ class SpacescapeGame extends FlameGame with PanDetector, TapDetector {
   Offset? _pointerCurrentPosition;
   final double _joysticRadius = 60, _deadZoneRadius = 10;
   late SpriteSheet _spriteSheet;
+  late EnemyManager _enemyManager;
 
   @override
   Future<void>? onLoad() async {
@@ -28,8 +30,8 @@ class SpacescapeGame extends FlameGame with PanDetector, TapDetector {
 
     player.anchor = Anchor.center;
     add(player);
-    EnemyManager enemyManager = EnemyManager(spriteSheet: _spriteSheet);
-    add(enemyManager);
+    _enemyManager = EnemyManager(spriteSheet: _spriteSheet);
+    add(_enemyManager);
   }
 
   @override
@@ -59,6 +61,27 @@ class SpacescapeGame extends FlameGame with PanDetector, TapDetector {
   @override
   void update(double dt) {
     super.update(dt);
+
+    final bullets = children.whereType<Bullet>();
+    for (var enemy in _enemyManager.children.whereType<Enemy>()) {
+      if (enemy.shouldRemove) {
+        continue;
+      }
+      for (var bullet in bullets) {
+        if (bullet.shouldRemove) {
+          continue;
+        }
+        if (enemy.containsPoint(bullet.absoluteCenter)) {
+          _enemyManager.remove(enemy);
+          remove(bullet);
+          break;
+        }
+      }
+
+      if (player.containsPoint(enemy.absoluteCenter)) {
+        _enemyManager.remove(enemy);
+      }
+    }
   }
 
   @override
