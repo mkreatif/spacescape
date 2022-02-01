@@ -12,6 +12,7 @@ class SpacescapeGame extends FlameGame
   late Player player;
   late SpriteSheet _spriteSheet;
   late EnemyManager _enemyManager;
+  late TextComponent _playerScore, _playerHealt;
 
   final Map<int, String> _assetsPath = {
     0: 'tilesheet.png',
@@ -40,7 +41,7 @@ class SpacescapeGame extends FlameGame
 
     _enemyManager = EnemyManager(spriteSheet: _spriteSheet);
 
-    JoystickComponent joystick = JoystickComponent(
+    final joystick = JoystickComponent(
       knob: SpriteComponent(
         sprite: knob.getSpriteById(0),
         size: Vector2.all(40),
@@ -56,11 +57,11 @@ class SpacescapeGame extends FlameGame
         size: Vector2(64, 64),
         position: canvasSize / 2);
     player.anchor = Anchor.center;
-    SpriteButtonComponent action = SpriteButtonComponent(
+    final action = SpriteButtonComponent(
         button: knob.getSpriteById(0),
         buttonDown: bgKnob.getSpriteById(0),
-        size: Vector2.all(100),
-        position: Vector2(canvasSize.x - 100, canvasSize.y - 100),
+        size: Vector2.all(70),
+        position: Vector2(canvasSize.x - 75, canvasSize.y - 100),
         anchor: Anchor.center,
         onPressed: () {
           Bullet bullet = Bullet(
@@ -71,9 +72,56 @@ class SpacescapeGame extends FlameGame
           bullet.anchor = Anchor.center;
           add(bullet);
         });
+
+    _playerScore = TextComponent(
+        text: 'Score : 0',
+        position: Vector2(20, 20),
+        anchor: Anchor.topLeft,
+        textRenderer: TextPaint(
+            style: const TextStyle(
+                color: Colors.red, fontWeight: FontWeight.bold)));
+
+    _playerHealt = TextComponent(
+        text: 'Healt : 100%',
+        position: Vector2(size.x - 20, 20),
+        anchor: Anchor.topRight,
+        textRenderer: TextPaint(
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold)));
+    _playerHealt.positionType = PositionType.widget;
+    _playerScore.positionType = PositionType.viewport;
+    action.positionType = PositionType.viewport;
+
     add(player);
     add(_enemyManager);
     add(joystick);
     add(action);
+    add(_playerScore);
+    add(_playerHealt);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    _playerHealt.text = "Healt : ${player.healt}%";
+    _playerScore.text = "Score : ${player.score}";
+  }
+
+  @override
+  void render(Canvas canvas) {
+    Color _color;
+    if (player.healt >= 70) {
+      _color = Colors.green;
+    } else if (player.healt < 70 && player.healt >= 40) {
+      _color = Colors.yellow;
+    } else {
+      _color = Colors.red;
+    }
+
+    canvas.drawRect(
+        Rect.fromLTWH(size.x - 110, 15, player.healt.toDouble(), 25),
+        Paint()..color = _color);
+    super.render(canvas);
   }
 }

@@ -16,24 +16,27 @@ class Player extends SpriteComponent
   final List<Color> _colors = [Colors.red, Colors.orange, Colors.yellow];
 
   final Random _random = Random();
+  int score = 0, healt = 100;
 
   Player(this.joystick, {Sprite? sprite, Vector2? position, Vector2? size})
-      : super(sprite: sprite, position: position, size: size);
+      : super(sprite: sprite, position: position, size: size) {
+    final shape = HitboxCircle(normalizedRadius: 0.8);
+    addHitbox(shape);
+  }
 
   Vector2 getRandomVector() =>
       (Vector2.random(_random) - Vector2(0.5, -1)) * 200;
 
   @override
-  void onMount() {
-    super.onMount();
-    final shape = HitboxCircle(normalizedRadius: 0.8);
-    addHitbox(shape);
-  }
-
-  @override
   void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
     super.onCollision(intersectionPoints, other);
-    if (other is Enemy) {}
+    if (other is Enemy) {
+      gameRef.camera.shake(intensity: 5);
+      healt -= 10;
+      if (healt <= 0) {
+        healt = 0;
+      }
+    }
   }
 
   void setMoveDirection(Vector2 newMoveDirection, double dt) {

@@ -5,6 +5,7 @@ import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 import 'package:spacescape/game/bullet.dart';
 import 'package:spacescape/game/know_game_size.dart';
+import 'package:spacescape/game/player.dart';
 import 'package:spacescape/game/spacescapegame.dart';
 
 class Enemy extends SpriteComponent
@@ -21,22 +22,18 @@ class Enemy extends SpriteComponent
   Enemy({Sprite? sprite, Vector2? position, Vector2? size})
       : super(sprite: sprite, position: position, size: size) {
     angle = pi;
+    final shape = HitboxCircle(normalizedRadius: 0.8);
+    addHitbox(shape);
   }
 
   Vector2 getRandomVector() =>
       (Vector2.random(_random) - Vector2.random(_random)) * 500;
 
   @override
-  void onMount() {
-    super.onMount();
-    final shape = HitboxCircle(normalizedRadius: 0.8);
-    addHitbox(shape);
-  }
-
-  @override
   void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
     super.onCollision(intersectionPoints, other);
-    if (other is Bullet) {
+    if (other is Bullet || other is Player) {
+      gameRef.player.score += 1;
       gameRef.remove(this);
       final _particle = ParticleComponent(
         Particle.generate(
