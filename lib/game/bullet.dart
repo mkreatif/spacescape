@@ -1,6 +1,5 @@
 import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
-import 'package:flutter/rendering.dart';
 import 'package:spacescape/game/enemy.dart';
 import 'package:spacescape/game/spacescapegame.dart';
 
@@ -32,11 +31,5 @@ class Bullet extends SpriteComponent
     if (position.y < 0) {
       remove(this);
     }
-  }
-
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-    renderHitboxes(canvas);
   }
 }

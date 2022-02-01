@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flame/particles.dart';
+import 'package:flutter/material.dart';
 import 'package:spacescape/game/enemy.dart';
 import 'package:spacescape/game/know_game_size.dart';
 import 'package:spacescape/game/spacescapegame.dart';
@@ -10,8 +13,14 @@ class Player extends SpriteComponent
   final JoystickComponent joystick;
   Vector2 _moveDirection = Vector2.zero();
   final double _speed = 300;
+
+  final Random _random = Random();
+
   Player(this.joystick, {Sprite? sprite, Vector2? position, Vector2? size})
       : super(sprite: sprite, position: position, size: size);
+
+  Vector2 getRandomVector() =>
+      (Vector2.random(_random) - Vector2(0.5, -1)) * 200;
 
   @override
   void onMount() {
@@ -64,11 +73,20 @@ class Player extends SpriteComponent
         break;
       default:
     }
-  }
 
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-    renderHitboxes(canvas);
+    final _particle = ParticleComponent(
+      Particle.generate(
+        count: 10,
+        lifespan: 0.1,
+        generator: (i) => AcceleratedParticle(
+          acceleration: getRandomVector(),
+          speed: getRandomVector(),
+          position: position + Vector2(0, size.y / 5),
+          child:
+              CircleParticle(paint: Paint()..color = Colors.white, radius: 1.5),
+        ),
+      ),
+    );
+    gameRef.add(_particle);
   }
 }

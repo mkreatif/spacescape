@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
-import 'package:flutter/rendering.dart';
 import 'package:spacescape/game/bullet.dart';
 import 'package:spacescape/game/know_game_size.dart';
 import 'package:spacescape/game/spacescapegame.dart';
@@ -36,11 +35,5 @@ class Enemy extends SpriteComponent
     if (position.y > gameSize.y) {
       remove(this);
     }
-  }
-
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-    renderHitboxes(canvas);
   }
 }
