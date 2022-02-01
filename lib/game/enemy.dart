@@ -8,7 +8,7 @@ import 'package:spacescape/game/spacescapegame.dart';
 
 class Enemy extends SpriteComponent
     with KnowGameSize, HasHitboxes, Collidable, HasGameRef<SpacescapeGame> {
-  double _speed = 250;
+  final double _speed = 250;
   Enemy({Sprite? sprite, Vector2? position, Vector2? size})
       : super(sprite: sprite, position: position, size: size) {
     angle = pi;

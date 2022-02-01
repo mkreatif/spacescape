@@ -7,9 +7,10 @@ import 'package:spacescape/game/spacescapegame.dart';
 
 class Player extends SpriteComponent
     with KnowGameSize, HasHitboxes, Collidable, HasGameRef<SpacescapeGame> {
+  final JoystickComponent joystick;
   Vector2 _moveDirection = Vector2.zero();
   final double _speed = 300;
-  Player({Sprite? sprite, Vector2? position, Vector2? size})
+  Player(this.joystick, {Sprite? sprite, Vector2? position, Vector2? size})
       : super(sprite: sprite, position: position, size: size);
 
   @override
@@ -25,15 +26,44 @@ class Player extends SpriteComponent
     if (other is Enemy) {}
   }
 
-  @override
-  void update(double dt) {
-    super.update(dt);
+  void setMoveDirection(Vector2 newMoveDirection, double dt) {
+    _moveDirection = newMoveDirection;
     position += _moveDirection.normalized() * _speed * dt;
     position.clamp(Vector2.zero() + size / 2, gameSize - size / 2);
   }
 
-  void setMoveDirection(Vector2 newMoveDirection) {
-    _moveDirection = newMoveDirection;
+  @override
+  void update(double dt) {
+    super.update(dt);
+    switch (joystick.direction) {
+      case JoystickDirection.up:
+        setMoveDirection(Vector2(0, -1), dt);
+        break;
+      case JoystickDirection.upLeft:
+        setMoveDirection(Vector2(-1, -1), dt);
+        break;
+      case JoystickDirection.upRight:
+        setMoveDirection(Vector2(1, -1), dt);
+        break;
+      case JoystickDirection.right:
+        setMoveDirection(Vector2(1, 0), dt);
+        break;
+      case JoystickDirection.down:
+        setMoveDirection(Vector2(0, 1), dt);
+        break;
+      case JoystickDirection.downRight:
+        setMoveDirection(Vector2(1, 1), dt);
+        break;
+      case JoystickDirection.downLeft:
+        setMoveDirection(Vector2(-1, 1), dt);
+        break;
+      case JoystickDirection.left:
+        setMoveDirection(Vector2(-1, 0), dt);
+        break;
+      case JoystickDirection.idle:
+        break;
+      default:
+    }
   }
 
   @override

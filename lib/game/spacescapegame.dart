@@ -5,135 +5,75 @@ import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:spacescape/game/bullet.dart';
 import 'package:spacescape/game/enemy_manager.dart';
-import 'package:spacescape/game/know_game_size.dart';
 import 'package:spacescape/game/player.dart';
 
 class SpacescapeGame extends FlameGame
-    with PanDetector, TapDetector, HasCollidables {
+    with HasCollidables, HasDraggables, HasTappables {
   late Player player;
-  Offset? _pointerStartPosition;
-  Offset? _pointerCurrentPosition;
-  final double _joysticRadius = 60, _deadZoneRadius = 10;
   late SpriteSheet _spriteSheet;
   late EnemyManager _enemyManager;
+
+  final Map<int, String> _assetsPath = {
+    0: 'tilesheet.png',
+    1: 'SmallHandleFilled.png',
+    2: 'LargeHandleFilledGrey.png'
+  };
 
   @override
   Future<void>? onLoad() async {
     super.onLoad();
-    await images.load('tilesheet.png');
+    for (var path in _assetsPath.values) {
+      await images.load(path);
+    }
     _spriteSheet = SpriteSheet.fromColumnsAndRows(
-        image: images.fromCache('tilesheet.png'), columns: 8, rows: 6);
-    player = Player(
+        image: images.fromCache(_assetsPath[0].toString()),
+        columns: 8,
+        rows: 6);
+    final knob = SpriteSheet.fromColumnsAndRows(
+        image: images.fromCache(_assetsPath[1].toString()),
+        columns: 1,
+        rows: 1);
+    final bgKnob = SpriteSheet.fromColumnsAndRows(
+        image: images.fromCache(_assetsPath[2].toString()),
+        columns: 1,
+        rows: 1);
+
+    _enemyManager = EnemyManager(spriteSheet: _spriteSheet);
+
+    JoystickComponent joystick = JoystickComponent(
+      knob: SpriteComponent(
+        sprite: knob.getSpriteById(0),
+        size: Vector2.all(40),
+      ),
+      background: SpriteComponent(
+        sprite: bgKnob.getSpriteById(0),
+        size: Vector2.all(100),
+      ),
+      margin: const EdgeInsets.only(left: 50, bottom: 50),
+    );
+    player = Player(joystick,
         sprite: _spriteSheet.getSpriteById(6),
         size: Vector2(64, 64),
         position: canvasSize / 2);
-
     player.anchor = Anchor.center;
+    SpriteButtonComponent action = SpriteButtonComponent(
+        button: knob.getSpriteById(0),
+        buttonDown: bgKnob.getSpriteById(0),
+        size: Vector2.all(100),
+        position: Vector2(canvasSize.x - 100, canvasSize.y - 100),
+        anchor: Anchor.center,
+        onPressed: () {
+          Bullet bullet = Bullet(
+              sprite: _spriteSheet.getSpriteById(28),
+              size: Vector2(64, 64),
+              position: player.position);
+
+          bullet.anchor = Anchor.center;
+          add(bullet);
+        });
     add(player);
-    _enemyManager = EnemyManager(spriteSheet: _spriteSheet);
     add(_enemyManager);
-  }
-
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-    // render joystic
-    if (_pointerStartPosition != null) {
-      canvas.drawCircle(_pointerStartPosition!, _joysticRadius,
-          Paint()..color = Colors.grey.withAlpha(100));
-    }
-    // render joystic pointer
-    if (_pointerCurrentPosition != null) {
-      var delta = _pointerCurrentPosition! - _pointerStartPosition!;
-
-      if (delta.distance > _joysticRadius) {
-        Vector2 vektor = Vector2(delta.dx, delta.dy);
-        final normalize = vektor.normalized() * _joysticRadius;
-        delta = _pointerStartPosition! + normalize.toOffset();
-      } else {
-        delta = _pointerCurrentPosition!;
-      }
-      canvas.drawCircle(
-          delta, 20, Paint()..color = Colors.white.withAlpha(100));
-    }
-  }
-
-  // @override
-  // void update(double dt) {
-  //   super.update(dt);
-
-  //   final bullets = children.whereType<Bullet>();
-  //   for (var enemy in _enemyManager.children.whereType<Enemy>()) {
-  //     if (enemy.shouldRemove) {
-  //       continue;
-  //     }
-  //     for (var bullet in bullets) {
-  //       if (bullet.shouldRemove) {
-  //         continue;
-  //       }
-  //       if (enemy.containsPoint(bullet.absoluteCenter)) {
-  //         _enemyManager.remove(enemy);
-  //         remove(bullet);
-  //         break;
-  //       }
-  //     }
-
-  //     if (player.containsPoint(enemy.absoluteCenter)) {
-  //       _enemyManager.remove(enemy);
-  //     }
-  //   }
-  // }
-
-  @override
-  void onPanStart(DragStartInfo info) {
-    _pointerStartPosition = info.eventPosition.global.toOffset();
-    _pointerCurrentPosition = info.eventPosition.global.toOffset();
-  }
-
-  @override
-  void onPanUpdate(DragUpdateInfo info) {
-    _pointerCurrentPosition = info.eventPosition.global.toOffset();
-    final delta = _pointerCurrentPosition! - _pointerStartPosition!;
-    if (delta.distance > _deadZoneRadius) {
-      player.setMoveDirection(Vector2(delta.dx, delta.dy));
-    } else {
-      player.setMoveDirection(Vector2.zero());
-    }
-  }
-
-  @override
-  void onPanEnd(DragEndInfo info) {
-    _pointerStartPosition = null;
-    _pointerCurrentPosition = null;
-    player.setMoveDirection(Vector2.zero());
-  }
-
-  @override
-  void onPanCancel() {
-    _pointerStartPosition = null;
-    _pointerCurrentPosition = null;
-
-    player.setMoveDirection(Vector2.zero());
-  }
-
-  @override
-  void prepare(Component parent) {
-    super.prepare(parent);
-    if (parent is KnowGameSize) {
-      parent.onGameResize(size);
-    }
-  }
-
-  @override
-  void onTapDown(TapDownInfo info) {
-    super.onTapDown(info);
-
-    Bullet bullet = Bullet(
-        sprite: _spriteSheet.getSpriteById(28),
-        size: Vector2(64, 64),
-        position: player.position);
-
-    bullet.anchor = Anchor.center;
-    add(bullet);
+    add(joystick);
+    add(action);
   }
 }
