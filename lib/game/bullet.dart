@@ -1,9 +1,30 @@
 import 'package:flame/components.dart';
+import 'package:flame/geometry.dart';
+import 'package:flutter/rendering.dart';
+import 'package:spacescape/game/enemy.dart';
+import 'package:spacescape/game/spacescapegame.dart';
 
-class Bullet extends SpriteComponent {
+class Bullet extends SpriteComponent
+    with HasHitboxes, Collidable, HasGameRef<SpacescapeGame> {
   final double speed;
   Bullet({Sprite? sprite, Vector2? position, Vector2? size, this.speed = 450})
       : super(sprite: sprite, position: position, size: size);
+
+  @override
+  void onMount() {
+    super.onMount();
+    final shape = HitboxCircle(normalizedRadius: 0.2);
+    addHitbox(shape);
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
+    super.onCollision(intersectionPoints, other);
+    if (other is Enemy) {
+      gameRef.remove(this);
+    }
+  }
+
   @override
   void update(double dt) {
     super.update(dt);
@@ -11,5 +32,11 @@ class Bullet extends SpriteComponent {
     if (position.y < 0) {
       remove(this);
     }
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    renderHitboxes(canvas);
   }
 }

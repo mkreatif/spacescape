@@ -24,7 +24,7 @@ class EnemyManager extends Component
         size: initSize,
         position: position);
     enemy.anchor = Anchor.center;
-    add(enemy);
+    gameRef.add(enemy);
   }
 
   @override
