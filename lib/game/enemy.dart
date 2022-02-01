@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
+import 'package:flame/particles.dart';
+import 'package:flutter/material.dart';
 import 'package:spacescape/game/bullet.dart';
 import 'package:spacescape/game/know_game_size.dart';
 import 'package:spacescape/game/spacescapegame.dart';
@@ -8,10 +10,21 @@ import 'package:spacescape/game/spacescapegame.dart';
 class Enemy extends SpriteComponent
     with KnowGameSize, HasHitboxes, Collidable, HasGameRef<SpacescapeGame> {
   final double _speed = 250;
+  final List<Color> _colors = [
+    Colors.red,
+    Colors.white,
+    Colors.yellow,
+    Colors.orange
+  ];
+
+  final Random _random = Random();
   Enemy({Sprite? sprite, Vector2? position, Vector2? size})
       : super(sprite: sprite, position: position, size: size) {
     angle = pi;
   }
+
+  Vector2 getRandomVector() =>
+      (Vector2.random(_random) - Vector2.random(_random)) * 500;
 
   @override
   void onMount() {
@@ -25,6 +38,20 @@ class Enemy extends SpriteComponent
     super.onCollision(intersectionPoints, other);
     if (other is Bullet) {
       gameRef.remove(this);
+      final _particle = ParticleComponent(
+        Particle.generate(
+          count: 20,
+          lifespan: 0.1,
+          generator: (i) => AcceleratedParticle(
+            acceleration: getRandomVector(),
+            speed: getRandomVector(),
+            position: position + Vector2(0, size.y / 5),
+            child: CircleParticle(
+                paint: Paint()..color = _colors[i % 4], radius: 1.5),
+          ),
+        ),
+      );
+      gameRef.add(_particle);
     }
   }
 

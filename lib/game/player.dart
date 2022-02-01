@@ -13,6 +13,7 @@ class Player extends SpriteComponent
   final JoystickComponent joystick;
   Vector2 _moveDirection = Vector2.zero();
   final double _speed = 300;
+  final List<Color> _colors = [Colors.red, Colors.orange, Colors.yellow];
 
   final Random _random = Random();
 
@@ -81,9 +82,9 @@ class Player extends SpriteComponent
         generator: (i) => AcceleratedParticle(
           acceleration: getRandomVector(),
           speed: getRandomVector(),
-          position: position + Vector2(0, size.y / 5),
+          position: position + Vector2(0, size.y / 4),
           child:
-              CircleParticle(paint: Paint()..color = Colors.white, radius: 1.5),
+              CircleParticle(paint: Paint()..color = _colors[i % 3], radius: 1),
         ),
       ),
     );
