@@ -47,7 +47,8 @@ class Enemy extends SpriteComponent
             speed: getRandomVector(),
             position: position + Vector2(0, size.y / 5),
             child: CircleParticle(
-                paint: Paint()..color = _colors[i % 4], radius: 1.5),
+                paint: Paint()..color = _colors[_random.nextInt(20) % 4],
+                radius: 1.5),
           ),
         ),
       );

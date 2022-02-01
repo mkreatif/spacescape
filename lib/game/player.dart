@@ -83,8 +83,9 @@ class Player extends SpriteComponent
           acceleration: getRandomVector(),
           speed: getRandomVector(),
           position: position + Vector2(0, size.y / 4),
-          child:
-              CircleParticle(paint: Paint()..color = _colors[i % 3], radius: 1),
+          child: CircleParticle(
+              paint: Paint()..color = _colors[_random.nextInt(20) % 3],
+              radius: 1),
         ),
       ),
     );
